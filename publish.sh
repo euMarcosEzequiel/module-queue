@@ -8,7 +8,7 @@ shopt -s extglob
 
 rm -rf !(dist)
 
-cp dist/* .
+cp -r dist/* .
 
 rm -rf dist
 

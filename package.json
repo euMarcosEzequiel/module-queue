@@ -1,0 +1,22 @@
+{
+  "name": "module-queue",
+  "version": "1.0.0",
+  "description": "Module Queue",
+  "scripts": {},
+  "author": "Marcos Ezequiel",
+  "license": "MIT",
+  "dependencies": {
+    "@nestjs/common": "^11.1.6",
+    "amqplib": "^0.10.9",
+    "dotenv": "^17.2.1"
+  },
+  "peerDependencies": {
+    "@nestjs/core": "^11.1.6"
+  },
+  "devDependencies": {
+    "@types/amqplib": "^0.10.7",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.3.0",
+    "typescript": "^5.9.2"
+  }
+}

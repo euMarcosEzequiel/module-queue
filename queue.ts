@@ -120,4 +120,40 @@ export class QueueService {
       callback(message);
     }, { noAck: false });
   }
+
+  async assertExchange(name: string, type: string, options?: any) {
+    return await this.channel.assertExchange(name, type, options);
+  }
+
+  async assertQueue(queue: string, options?: any) {
+    return await this.channel.assertQueue(queue, options);
+  }
+
+  async bindQueueToExchange(exchange: string, queue: string, severity: string, args?: any) {
+    return await this.channel.bindQueue(queue, exchange, severity, args);
+  }
+
+  async publishInExchange(exchange: string, routingKey: string, message: string, delay: number = 0) {
+    if (delay === 0) {
+      return this.channel.publish(exchange, routingKey, Buffer.from(message));
+    } else {
+      return this.channel.publish(exchange, routingKey, Buffer.from(message), { headers: { 'x-delay': delay * 1000 * 60 } });
+    }
+  }
+
+  async get(queue: string) {
+    const data = await this.channel.get(queue);
+    if (typeof data !== 'boolean') {
+      return data;
+    }
+    return null;
+  }
+
+  async ack(message: Message) {
+    return this.channel.ack(message, false);
+  }
+
+  async nack(message: Message) {
+    return this.channel.nack(message, false);
+  }
 }

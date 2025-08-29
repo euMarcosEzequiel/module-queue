@@ -1,6 +1,6 @@
 git checkout -b build
 
-tsc || { echo "Erro na compilação"; exit 1; }
+tsc || { echo "Build error"; exit 1; }
 
 cp package.json dist/
 
@@ -14,7 +14,7 @@ rm -rf dist
 
 git add .
 
-git commit -m "deploy build"
+git commit -m "publish build"
 
 git push origin build --force
 

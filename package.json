@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Module Queue",
   "scripts": {},
-  "author": "Marcos Ezequiel",
+  "author": "Marcos Marques",
   "license": "MIT",
   "dependencies": {
     "@nestjs/common": "^11.1.6",

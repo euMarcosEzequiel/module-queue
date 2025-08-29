@@ -2,7 +2,7 @@
 This repository contains a module for managing queues via AMQP.
 
 ### 🔁 Clone the Repository
-> `git clone https://github.com/euMarcosEzequiel/module-queue.git`
+> `git clone https://github.com/eumarqueess/module-queue.git`
 
 > `cd module-queue`
 
@@ -13,4 +13,4 @@ This repository contains a module for managing queues via AMQP.
 > `bash publish.sh`
 
 ### ✔ Install the Module
-> `npm install git+https://github.com/euMarcosEzequiel/module-queue.git#build`
+> `npm install git+https://github.com/eumarqueess/module-queue.git#build`

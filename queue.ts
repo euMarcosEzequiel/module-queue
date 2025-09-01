@@ -148,9 +148,11 @@ export class QueueService {
   async consumeQueue(queue: string, route: string, callback: (message: Message) => void) {
     await this.setup(queue, route);
 
-    return this.channel.consume(queue, async (message) => {
+    const { consumerTag } = await this.channel.consume(queue, async (message) => {
       callback(message);
     }, { noAck: false });
+
+    return await this.channel.cancel(consumerTag);
   }
 
   async assertExchange(name: string, type: string, options?: any) {

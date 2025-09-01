@@ -81,6 +81,23 @@ export class QueueService {
     }
   }
 
+  private async setup(queue: string, route: string) {
+    console.log('[RabbitMQ] Configuring queue service...');
+
+    await this.assertExchange(this.exchange, ExchangeType.xDelayedMessage);
+
+    await this.assertQueue(queue, {
+      durable: true,
+      arguments: {
+        'x-queue-type': QueueType.classic
+      }
+    });
+
+    await this.bindQueueToExchange(this.exchange, queue, route);
+
+    console.log('[RabbitMQ] Queue service configured');
+  }
+
   async start() {
     try {
       console.log('[RabbitMQ] Starting the queue service...');
@@ -111,20 +128,7 @@ export class QueueService {
 
   async publishInQueue(queue: string, route: string, message: string, options?: any) {
     try {
-      console.log('[RabbitMQ] Configuring queue service...');
-
-      await this.assertExchange(this.exchange, ExchangeType.xDelayedMessage);
-
-      await this.assertQueue(queue, {
-        durable: true,
-        arguments: {
-          'x-queue-type': QueueType.classic
-        }
-      });
-
-      await this.bindQueueToExchange(this.exchange, queue, route);
-
-      console.log('[RabbitMQ] Queue service configured');
+      await this.setup(queue, route);
 
       console.log(`[RabbitMQ] Publishing to the queue ${queue}...`);
 
@@ -136,7 +140,9 @@ export class QueueService {
     }
   }
 
-  async consumeQueue(queue: string, callback: (message: Message) => void) {
+  async consumeQueue(queue: string, route: string, callback: (message: Message) => void) {
+    await this.setup(queue, route);
+
     return this.channel.consume(queue, async (message) => {
       callback(message);
     }, { noAck: false });

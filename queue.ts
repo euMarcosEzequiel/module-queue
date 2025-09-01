@@ -84,12 +84,17 @@ export class QueueService {
   private async setup(queue: string, route: string) {
     console.log('[RabbitMQ] Configuring queue service...');
 
-    await this.assertExchange(this.exchange, ExchangeType.xDelayedMessage);
-
     await this.assertQueue(queue, {
       durable: true,
       arguments: {
         'x-queue-type': QueueType.classic
+      }
+    });
+
+    await this.assertExchange(this.exchange, ExchangeType.xDelayedMessage, {
+      durable: true,
+      arguments: {
+        'x-delayed-type': ExchangeType.direct
       }
     });
 

@@ -1,13 +1,15 @@
 import { Injectable } from '@nestjs/common'
 import { connect, Channel, Message } from "amqplib";
+import { ExchangeType, QueueType } from './types';
 
 
 @Injectable()
 export class QueueService {
-  uri: string;
+  private uri: string;
   private conn: Awaited<ReturnType<typeof connect>>;
   private channel: Channel;
   private delay = 5000;
+  private exchange = 'exc.delay'
 
   constructor() {
     this.uri = `amqp://${process.env.RMQ_USER}:${process.env.RMQ_PASSWORD}@${process.env.RMQ_SERVER}:${process.env.RMQ_PORT}`
@@ -20,6 +22,7 @@ export class QueueService {
 
       this.conn.on('error', (err) => {
         console.error('[RabbitMQ] Connection error:', err.message);
+        setTimeout(() => this.start(), this.delay);
       });
       this.conn.on('close', () => {
         console.warn('[RabbitMQ] Connection closed. Trying to reconnect...');
@@ -29,6 +32,7 @@ export class QueueService {
       console.log('[RabbitMQ] Connection created')
     } catch (error) {
       console.error('[RabbitMQ]: Failed to create connection:', error.message)
+      setTimeout(() => this.start(), this.delay);
     }
   }
 
@@ -39,6 +43,7 @@ export class QueueService {
 
       this.channel.on('error', (err) => {
         console.error('[RabbitMQ] Channel error:', err.message);
+        setTimeout(() => this.start(), this.delay);
       });
       this.channel.on('close', () => {
         console.warn('[RabbitMQ] Channel closed. Trying to reconnect...');
@@ -48,12 +53,13 @@ export class QueueService {
       console.log('[RabbitMQ] Channel created');
     } catch (error) {
       console.error('[RabbitMQ] Failed to create channel:', error.message);
+      setTimeout(() => this.start(), this.delay);
     }
   }
 
   private async closeConnection() {
     try {
-      console.log('[RabbitMQ] Closing connection...')
+      console.log('[RabbitMQ] Closing connection...');
 
       await this.conn.close();
 
@@ -65,11 +71,11 @@ export class QueueService {
 
   private async closeChannel() {
     try {
-      console.log('[RabbitMQ] Closing channel...')
+      console.log('[RabbitMQ] Closing channel...');
 
       await this.channel.close();
 
-      console.log('[RabbitMQ] Channel closed')
+      console.log('[RabbitMQ] Channel closed');
     } catch (error) {
       console.error('[RabbitMQ] Error closing channel:', error.message);
     }
@@ -103,8 +109,23 @@ export class QueueService {
     }
   }
 
-  async publishInQueue(queue: string, message: string, options?: any) {
+  async publishInQueue(queue: string, route: string, message: string, options?: any) {
     try {
+      console.log('[RabbitMQ] Configuring queue service...');
+
+      await this.assertExchange(this.exchange, ExchangeType.xDelayedMessage);
+
+      await this.assertQueue(queue, {
+        durable: true,
+        arguments: {
+          'x-queue-type': QueueType.classic
+        }
+      });
+
+      await this.bindQueueToExchange(this.exchange, queue, route);
+
+      console.log('[RabbitMQ] Queue service configured');
+
       console.log(`[RabbitMQ] Publishing to the queue ${queue}...`);
 
       this.channel.sendToQueue(queue, Buffer.from(message), options);

@@ -23,3 +23,5 @@ git checkout main
 git branch -D build
 
 git reset --hard
+
+npm install
